@@ -1,7 +1,7 @@
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
-// Valid categories that the AI can return
-const VALID_CATEGORIES = ['work', 'shopping', 'idea', 'personal', 'reminder', 'health', 'travel', 'random'];
+// Valid categories that the AI can return (matching app categories)
+const VALID_CATEGORIES = ['personal', 'work', 'ideas', 'goals', 'reflections', 'random', 'creative', 'learning', 'health', 'relationships'];
 
 // Category mapping for common variations and synonyms
 const CATEGORY_MAPPING = {
@@ -15,20 +15,14 @@ const CATEGORY_MAPPING = {
   'task': 'work',
   'deadline': 'work',
   
-  // Shopping variations
-  'buy': 'shopping',
-  'purchase': 'shopping',
-  'store': 'shopping',
-  'grocery': 'shopping',
-  'groceries': 'shopping',
-  'market': 'shopping',
-  
-  // Idea variations
-  'concept': 'idea',
-  'thought': 'idea',
-  'brainstorm': 'idea',
-  'innovation': 'idea',
-  'creative': 'idea',
+  // Ideas variations
+  'concept': 'ideas',
+  'thought': 'ideas',
+  'brainstorm': 'ideas',
+  'innovation': 'ideas',
+  'creative': 'ideas',
+  'invention': 'ideas',
+  'solution': 'ideas',
   
   // Personal variations
   'self': 'personal',
@@ -37,14 +31,49 @@ const CATEGORY_MAPPING = {
   'life': 'personal',
   'family': 'personal',
   'relationship': 'personal',
+  'emotion': 'personal',
+  'mood': 'personal',
   
-  // Reminder variations
-  'todo': 'reminder',
-  'remember': 'reminder',
-  'note': 'reminder',
-  'appointment': 'reminder',
-  'schedule': 'reminder',
-  'calendar': 'reminder',
+  // Goals variations
+  'goal': 'goals',
+  'want': 'goals',
+  'should': 'goals',
+  'plan': 'goals',
+  'achieve': 'goals',
+  'improve': 'goals',
+  'learn': 'goals',
+  'todo': 'goals',
+  'remember': 'goals',
+  'appointment': 'goals',
+  'schedule': 'goals',
+  'calendar': 'goals',
+  
+  // Reflections variations
+  'reflect': 'reflections',
+  'thinking': 'reflections',
+  'realized': 'reflections',
+  'understand': 'reflections',
+  'wisdom': 'reflections',
+  'insight': 'reflections',
+  
+  // Creative variations
+  'create': 'creative',
+  'art': 'creative',
+  'design': 'creative',
+  'music': 'creative',
+  'write': 'creative',
+  'paint': 'creative',
+  'craft': 'creative',
+  'draw': 'creative',
+  
+  // Learning variations
+  'study': 'learning',
+  'education': 'learning',
+  'skill': 'learning',
+  'knowledge': 'learning',
+  'course': 'learning',
+  'book': 'learning',
+  'research': 'learning',
   
   // Health variations
   'medical': 'health',
@@ -53,14 +82,16 @@ const CATEGORY_MAPPING = {
   'exercise': 'health',
   'wellness': 'health',
   'diet': 'health',
+  'workout': 'health',
   
-  // Travel variations
-  'trip': 'travel',
-  'vacation': 'travel',
-  'journey': 'travel',
-  'flight': 'travel',
-  'hotel': 'travel',
-  'destination': 'travel',
+  // Relationships variations
+  'friend': 'relationships',
+  'family': 'relationships',
+  'love': 'relationships',
+  'social': 'relationships',
+  'people': 'relationships',
+  'partner': 'relationships',
+  'colleague': 'relationships',
 };
 
 // Normalize and map category
@@ -141,25 +172,39 @@ export const categorizeThoughtWithGemini = async (thought) => {
     // Enhanced prompt with clear instructions for both category and type analysis
     const prompt = `Analyze the following user input and provide a JSON response with two determinations:
 
-1. CATEGORY: Categorize into one of these exact categories: work, shopping, idea, personal, reminder, health, travel, random
+1. CATEGORY: Categorize into one of these exact categories: personal, work, ideas, goals, reflections, random, creative, learning, health, relationships
 2. TYPE: Determine if this is an actionable task or just a thought/statement
 
 IMPORTANT INSTRUCTIONS:
 - Respond with valid JSON only: {"category": "...", "type": "..."}
-- Category must be one of: work, shopping, idea, personal, reminder, health, travel, random
+- Category must be one of: personal, work, ideas, goals, reflections, random, creative, learning, health, relationships
 - Type must be either "task" or "thought"
+
+CATEGORY DEFINITIONS:
+- "personal": Personal feelings, emotions, life experiences, self-reflection
+- "work": Job-related tasks, projects, meetings, career development
+- "ideas": Creative concepts, inventions, solutions, brainstorming
+- "goals": Things you want to achieve, plans, aspirations, to-dos
+- "reflections": Deep thinking, insights, wisdom, philosophical thoughts
+- "creative": Art, music, writing, design, creative projects
+- "learning": Education, studying, acquiring new skills or knowledge
+- "health": Fitness, medical, wellness, diet, exercise
+- "relationships": Friends, family, social connections, love
+- "random": Miscellaneous thoughts that don't fit other categories
 
 TYPE DEFINITIONS:
 - "task": Something actionable the user can do, complete, or accomplish (e.g., "buy groceries", "call mom", "finish report", "go for a run")
 - "thought": A reflection, idea, statement, or observation without a clear action (e.g., "I love sunsets", "wondering about life", "feeling grateful", "random idea about flying cars")
 
 EXAMPLES:
-- "Buy groceries tomorrow" → {"category": "shopping", "type": "task"}
+- "Buy groceries tomorrow" → {"category": "goals", "type": "task"}
 - "I love how peaceful mornings are" → {"category": "personal", "type": "thought"}
 - "Schedule dentist appointment" → {"category": "health", "type": "task"}
-- "What if we could teleport?" → {"category": "idea", "type": "thought"}
+- "What if we could teleport?" → {"category": "ideas", "type": "thought"}
 - "Finish the quarterly report" → {"category": "work", "type": "task"}
-- "Feeling grateful for my family" → {"category": "personal", "type": "thought"}
+- "Feeling grateful for my family" → {"category": "relationships", "type": "thought"}
+- "Learn Spanish this year" → {"category": "learning", "type": "task"}
+- "I want to paint a sunset" → {"category": "creative", "type": "thought"}
 
 User input: "${thought}"
 
